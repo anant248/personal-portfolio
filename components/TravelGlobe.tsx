@@ -55,14 +55,17 @@ export default function TravelGlobe({ onLocationSelect, selectedLocation }: Trav
 
     // Inner: visual pin offset so the bottom-centre sits on the coordinate
     const pin = document.createElement("div");
+    const mobile = typeof window !== "undefined" && window.innerWidth < 768;
     pin.style.cssText = [
       "position: absolute;",
       "transform: translate(-50%, -100%);",
       "transition: transform 0.15s ease;",
-      "font-size: 28px;",
+      `font-size: ${mobile ? "22px" : "28px"};`,
       "line-height: 1;",
       "filter: drop-shadow(0 2px 6px rgba(0,0,0,0.55));",
       "will-change: transform;",
+      /* Larger tap target on mobile */
+      `padding: ${mobile ? "6px" : "0px"};`,
     ].join(" ");
     pin.textContent = "📌";
     pin.title = `${loc.city}, ${loc.country}`;
