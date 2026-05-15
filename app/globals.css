@@ -1,0 +1,59 @@
+@import "tailwindcss";
+
+/* Enable class-based dark mode for Tailwind v4 */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ── Light mode (default) ────────────────────────────── */
+:root {
+  --bg:        #f8f8f6;
+  --fg:        #171717;
+  --fg-2:      #404040;
+  --fg-muted:  #737373;
+  --fg-dim:    #a3a3a3;
+  --border:    #e4e4e7;
+  --nav-bg:    rgba(248, 248, 246, 0.85);
+  --pill-bg:   #ffffff;
+  --disc-bg:   #2a2a2a;
+  --disc-border: #505050;
+}
+
+/* ── Dark mode ───────────────────────────────────────── */
+.dark {
+  --bg:        #0a0a0a;
+  --fg:        #e8e8e8;
+  --fg-2:      #a1a1aa;
+  --fg-muted:  #71717a;
+  --fg-dim:    #52525b;
+  --border:    #27272a;
+  --nav-bg:    rgba(10, 10, 10, 0.75);
+  --pill-bg:   #141414;
+  --disc-bg:   #1a1a1a;
+  --disc-border: #3a3a3a;
+}
+
+@theme inline {
+  --color-background: var(--bg);
+  --color-foreground: var(--fg);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background: #FB923C30;
+}
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
