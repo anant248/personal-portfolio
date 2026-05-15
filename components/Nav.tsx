@@ -104,7 +104,7 @@ export default function Nav() {
 
       {/* Right: nav links + theme toggle */}
       <nav className="flex items-center gap-7">
-        {navLinks.map(({ label, href, external, comingSoon }) =>
+        {navLinks.map(({ label, href, comingSoon }) =>
           comingSoon ? (
             <span
               key={label}
@@ -120,8 +120,8 @@ export default function Nav() {
             <a
               key={label}
               href={href ?? undefined}
-              target={external ? "_blank" : undefined}
-              rel={external ? "noopener noreferrer" : undefined}
+              target={undefined}
+              rel={undefined}
               className="font-mono text-base tracking-wide transition-colors"
               style={{ color: "var(--fg-muted)" }}
               onMouseEnter={e => (e.currentTarget.style.color = "var(--fg)")}
