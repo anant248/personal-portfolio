@@ -66,12 +66,12 @@ export default function Nav() {
           />
         </a>
 
-        {/* Divider */}
-        <div className="h-5 w-px" style={{ background: "var(--border)" }} />
+        {/* Divider — desktop only */}
+        <div className="h-5 w-px hidden md:block" style={{ background: "var(--border)" }} />
 
-        {/* Social icon links with tooltips */}
+        {/* Social icon links with tooltips — desktop only */}
         {socialLinks.map(({ href, Icon, label, isLucide, external }) => (
-          <div key={label} className="relative group flex items-center">
+          <div key={label} className="relative group items-center hidden md:flex">
             <a
               href={href}
               target={external || !href.startsWith("mailto") ? "_blank" : undefined}
@@ -89,7 +89,7 @@ export default function Nav() {
             </a>
             {/* Tooltip */}
             <div
-              className="absolute top-full left-1/2 -translate-x-1/2 mt-2.5 px-2 py-1 rounded text-[11px] font-mono whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
+              className="absolute top-full left-1/2 -translate-x-1/2 mt-2.5 px-2 py-1 rounded text-[11px] font-mono whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none"
               style={{
                 background: "var(--pill-bg)",
                 color: "var(--fg-2)",
@@ -103,12 +103,12 @@ export default function Nav() {
       </div>
 
       {/* Right: nav links + theme toggle */}
-      <nav className="flex items-center gap-7">
+      <nav className="flex items-center gap-5 md:gap-7">
         {navLinks.map(({ label, href, comingSoon }) =>
           comingSoon ? (
             <span
               key={label}
-              className="font-mono text-base tracking-wide flex items-center gap-1.5 cursor-default"
+              className="font-mono text-base tracking-wide items-center gap-1.5 cursor-default hidden md:flex"
               style={{ color: "var(--fg-dim)" }}
             >
               {label}
@@ -120,9 +120,7 @@ export default function Nav() {
             <a
               key={label}
               href={href ?? undefined}
-              target={undefined}
-              rel={undefined}
-              className="font-mono text-base tracking-wide transition-colors"
+              className="font-mono text-base tracking-wide transition-colors hidden md:block"
               style={{ color: "var(--fg-muted)" }}
               onMouseEnter={e => (e.currentTarget.style.color = "var(--fg)")}
               onMouseLeave={e => (e.currentTarget.style.color = "var(--fg-muted)")}

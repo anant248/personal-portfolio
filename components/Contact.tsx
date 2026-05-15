@@ -53,7 +53,7 @@ export default function Contact() {
             >
               Anant Goyal
             </h2>
-            <p className="text-base mb-8" style={{ color: "var(--fg-muted)" }}>Masters in CE @ UIUC</p>
+            <p className="text-base mb-8" style={{ color: "var(--fg-muted)" }}>Masters in Computer Engineering @ UIUC</p>
             <p className="text-xl leading-relaxed max-w-sm" style={{ color: "var(--fg-2)" }}>
               Always open to interesting conversations,
               collaborations, and new opportunities.

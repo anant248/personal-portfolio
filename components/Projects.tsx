@@ -33,7 +33,7 @@ function ProjectCard({ project, index }: { project: typeof projects[0]; index: n
       whileHover={{ y: -4, transition: { duration: 0.2 } }}
       className="relative shrink-0 rounded-2xl overflow-hidden flex flex-col"
       style={{
-        width: `${CARD_W}px`,
+        width: `min(${CARD_W}px, 88vw)`,
         height: "300px",
         scrollSnapAlign: "start",
         background: project.color,
@@ -47,7 +47,7 @@ function ProjectCard({ project, index }: { project: typeof projects[0]; index: n
           <span className="font-mono text-[11px] tracking-widest uppercase" style={{ color: "rgba(255,255,255,0.3)" }}>
             project {String(index + 1).padStart(2, "0")}
           </span>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3" style={{ color: "white" }}>
             {project.github && (
               <a
                 href={project.github}
@@ -55,6 +55,7 @@ function ProjectCard({ project, index }: { project: typeof projects[0]; index: n
                 rel="noopener noreferrer"
                 aria-label="GitHub"
                 className="transition-opacity opacity-40 hover:opacity-100"
+                style={{ color: "white" }}
                 onClick={(e) => e.stopPropagation()}
               >
                 <GithubIcon size={17} />
@@ -67,6 +68,7 @@ function ProjectCard({ project, index }: { project: typeof projects[0]; index: n
                 rel="noopener noreferrer"
                 aria-label="Live / Demo"
                 className="transition-opacity opacity-40 hover:opacity-100"
+                style={{ color: "white" }}
                 onClick={(e) => e.stopPropagation()}
               >
                 <ExternalLink size={16} strokeWidth={1.5} />

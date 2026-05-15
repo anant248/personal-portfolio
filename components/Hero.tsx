@@ -5,10 +5,10 @@ import { ArrowDown } from "lucide-react";
 import Image from "next/image";
 
 const polaroids = [
-  { src: "/photos/hero/me.JPG",         caption: "yum!",              rotate: -7, top: "0%",  left: "0%"  },
-  { src: "/photos/hero/bean.jpeg",      caption: "the bean!",         rotate:  5, top: "5%",  left: "40%" },
-  { src: "/photos/hero/lakers.jpeg",    caption: "first laker game",  rotate: -3, top: "47%", left: "8%"  },
-  { src: "/photos/hero/fall_uiuc.jpeg", caption: "fall on campus",    rotate:  8, top: "52%", left: "40%" },
+  { src: "/photos/hero/me.JPG",         caption: "yum!",             rotate: -6, top: "0%",  left: "0%"  },
+  { src: "/photos/hero/bean.jpeg",      caption: "the bean!",        rotate:  5, top: "3%",  left: "49%" },
+  { src: "/photos/hero/lakers.jpeg",    caption: "first laker game", rotate: -3, top: "52%", left: "3%"  },
+  { src: "/photos/hero/fall_uiuc.jpeg", caption: "fall on campus",   rotate:  7, top: "49%", left: "49%" },
 ];
 
 function Polaroid({
@@ -127,7 +127,7 @@ export default function Hero() {
         {/* Right: polaroid cluster */}
         <div
           className="relative shrink-0 hidden lg:block"
-          style={{ width: "460px", height: "560px" }}
+          style={{ width: "470px", height: "590px" }}
         >
           {polaroids.map((p, i) => (
             <Polaroid key={i} index={i} {...p} />
