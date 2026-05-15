@@ -140,8 +140,8 @@ export default function Nav() {
           );
         })}
 
-        {/* Globe icon — links to /travel, with tooltip */}
-        <div className="relative group items-center hidden md:flex">
+        {/* Globe icon — links to /travel, with tooltip. Visible on all screen sizes. */}
+        <div className="relative group items-center flex">
           <Link
             href="/travel"
             aria-label="My journey"
