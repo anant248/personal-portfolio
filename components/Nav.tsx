@@ -2,15 +2,17 @@
 
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
-import { Sun, Moon, Mail, FileText } from "lucide-react";
+import { usePathname } from "next/navigation";
+import Link from "next/link";
+import { Sun, Moon, Mail, FileText, Globe } from "lucide-react";
 import Image from "next/image";
 
 const navLinks = [
-  { label: "About",      href: "#about" },
-  { label: "Experience", href: "#experience" },
-  { label: "Projects",   href: "#projects" },
-  { label: "Contact",    href: "#contact" },
-  { label: "Writing",    href: null, comingSoon: true },
+  { label: "About",      href: "#about",      comingSoon: false },
+  { label: "Experience", href: "#experience", comingSoon: false },
+  { label: "Projects",   href: "#projects",   comingSoon: false },
+  { label: "Contact",    href: "#contact",    comingSoon: false },
+  { label: "Writing",    href: null,          comingSoon: true  },
 ];
 
 function GithubIcon({ size = 20 }: { size?: number }) {
@@ -39,6 +41,7 @@ const socialLinks = [
 export default function Nav() {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => setMounted(true), []);
 
@@ -48,6 +51,9 @@ export default function Nav() {
   const iconLeave = (e: React.MouseEvent<HTMLAnchorElement | HTMLButtonElement>) =>
     ((e.currentTarget as HTMLElement).style.color = "var(--fg-muted)");
 
+  const isTravel = pathname === "/travel";
+  const logoHref = isTravel ? "/" : "#hero";
+
   return (
     <header
       className="fixed top-0 inset-x-0 z-50 flex justify-between items-center px-6 py-3 backdrop-blur-md border-b"
@@ -55,7 +61,7 @@ export default function Nav() {
     >
       {/* Left: logo + social icons */}
       <div className="flex items-center gap-4">
-        <a href="#hero" className="flex items-center shrink-0">
+        <Link href={logoHref} className="flex items-center shrink-0">
           <Image
             src="/ag-logo.png"
             alt="AG logo"
@@ -64,7 +70,7 @@ export default function Nav() {
             className="object-contain"
             priority
           />
-        </a>
+        </Link>
 
         {/* Divider — desktop only */}
         <div className="h-5 w-px hidden md:block" style={{ background: "var(--border)" }} />
@@ -102,21 +108,25 @@ export default function Nav() {
         ))}
       </div>
 
-      {/* Right: nav links + theme toggle */}
+      {/* Right: nav links + globe icon + theme toggle */}
       <nav className="flex items-center gap-5 md:gap-7">
-        {navLinks.map(({ label, href, comingSoon }) =>
-          comingSoon ? (
-            <span
-              key={label}
-              className="font-mono text-base tracking-wide items-center gap-1.5 cursor-default hidden md:flex"
-              style={{ color: "var(--fg-dim)" }}
-            >
-              {label}
-              <span className="text-[10px] tracking-normal" style={{ color: "var(--fg-dim)" }}>
-                (coming soon!)
+        {navLinks.map(({ label, href, comingSoon }) => {
+          if (comingSoon) {
+            return (
+              <span
+                key={label}
+                className="font-mono text-base tracking-wide items-center gap-1.5 cursor-default hidden md:flex"
+                style={{ color: "var(--fg-dim)" }}
+              >
+                {label}
+                <span className="text-[10px] tracking-normal" style={{ color: "var(--fg-dim)" }}>
+                  (coming soon!)
+                </span>
               </span>
-            </span>
-          ) : (
+            );
+          }
+
+          return (
             <a
               key={label}
               href={href ?? undefined}
@@ -127,8 +137,32 @@ export default function Nav() {
             >
               {label}
             </a>
-          )
-        )}
+          );
+        })}
+
+        {/* Globe icon — links to /travel, with tooltip */}
+        <div className="relative group items-center hidden md:flex">
+          <Link
+            href="/travel"
+            aria-label="My journey"
+            className="transition-colors p-1 rounded-md"
+            style={{ color: isTravel ? "#FB923C" : "var(--fg-muted)" }}
+            onMouseEnter={e => { if (!isTravel) e.currentTarget.style.color = "var(--fg)"; }}
+            onMouseLeave={e => { if (!isTravel) e.currentTarget.style.color = "var(--fg-muted)"; }}
+          >
+            <Globe size={18} strokeWidth={1.7} />
+          </Link>
+          <div
+            className="absolute top-full left-1/2 -translate-x-1/2 mt-2.5 px-2 py-1 rounded text-[11px] font-mono whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none"
+            style={{
+              background: "var(--pill-bg)",
+              color: "var(--fg-2)",
+              border: "1px solid var(--border)",
+            }}
+          >
+            my journey
+          </div>
+        </div>
 
         <button
           onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
