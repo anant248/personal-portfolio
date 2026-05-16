@@ -4,38 +4,7 @@ import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
 import Image from "next/image";
 
-const skills = [
-  {
-    category: "Languages",
-    items: [
-      { name: "Java",           level: 92 },
-      { name: "Python",         level: 92 },
-      { name: "TypeScript / JS",level: 85 },
-      { name: "C / C++",        level: 74 },
-      { name: "SQL",            level: 70 },
-    ],
-  },
-  {
-    category: "Frameworks",
-    items: [
-      { name: "React",          level: 80 },
-      { name: "Next.js",        level: 78 },
-      { name: "Spring",         level: 72 },
-      { name: "Node.js",        level: 70 },
-      { name: "Angular",        level: 65 },
-    ],
-  },
-  {
-    category: "Tools",
-    items: [
-      { name: "Git",            level: 95 },
-      { name: "Jira",           level: 92 },
-      { name: "Jenkins",        level: 75 },
-      { name: "Snyk",           level: 74 },
-      { name: "Hadoop / Spark", level: 62 },
-    ],
-  },
-];
+const techItems = ["Java", "Python", "TypeScript / JS", /*"C / C++",*/ "SQL", "React", "Next.js", "Spring", /*"Node.js", "Angular"*/];
 
 function SectionTitle({ children }: { children: string }) {
   return (
@@ -90,28 +59,6 @@ function BigPolaroid() {
   );
 }
 
-function SkillBar({ name, level, delay }: { name: string; level: number; delay: number }) {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-40px" });
-
-  return (
-    <div ref={ref} className="space-y-2">
-      <div className="flex justify-between items-center">
-        <span className="font-mono text-sm tracking-wide" style={{ color: "var(--fg-2)" }}>{name}</span>
-        <span className="font-mono text-xs" style={{ color: "var(--fg-dim)" }}>{level}%</span>
-      </div>
-      <div className="h-px w-full rounded-full" style={{ background: "var(--border)" }}>
-        <motion.div
-          initial={{ width: 0 }}
-          animate={isInView ? { width: `${level}%` } : { width: 0 }}
-          transition={{ duration: 0.9, delay, ease: "easeOut" }}
-          className="h-px rounded-full"
-          style={{ background: level >= 80 ? "#FB923C" : "var(--fg-dim)" }}
-        />
-      </div>
-    </div>
-  );
-}
 
 export default function About() {
   const ref = useRef(null);
@@ -151,8 +98,9 @@ export default function About() {
 
         {/* Bio + polaroid */}
         <div className="flex flex-col lg:flex-row gap-16 items-start">
-          <div className="flex-1 space-y-5">
-            {paragraphs.map((p, i) => (
+          <div className="flex-1 space-y-8">
+            {/* Paragraphs 0 and 1 */}
+            {paragraphs.slice(0, 2).map((p, i) => (
               <motion.p
                 key={i}
                 initial={{ opacity: 0, y: 18 }}
@@ -164,46 +112,54 @@ export default function About() {
                 {p}
               </motion.p>
             ))}
+
+            {/* Inline tech pills — after "Before grad school..." */}
+            <motion.div
+              initial={{ opacity: 0, y: 14 }}
+              animate={isInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.5, delay: 0.34, ease: "easeOut" }}
+            >
+              <p className="text-xl leading-relaxed mb-3" style={{ color: "var(--fg-2)" }}>
+                Here are some languages and frameworks I&apos;ve been working with:
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {techItems.map((tech, i) => (
+                  <motion.span
+                    key={tech}
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={isInView ? { opacity: 1, y: 0 } : {}}
+                    transition={{ duration: 0.3, delay: 0.4 + i * 0.05, ease: "easeOut" }}
+                    className="text-xl rounded-full px-3 py-1 border cursor-default leading-relaxed"
+                    style={{ borderColor: "var(--border)", color: "var(--fg-2)", background: "transparent" }}
+                    onMouseEnter={e => {
+                      (e.currentTarget as HTMLElement).style.color = "#FB923C";
+                      (e.currentTarget as HTMLElement).style.borderColor = "#FB923C";
+                    }}
+                    onMouseLeave={e => {
+                      (e.currentTarget as HTMLElement).style.color = "var(--fg-2)";
+                      (e.currentTarget as HTMLElement).style.borderColor = "var(--border)";
+                    }}
+                  >
+                    {tech}
+                  </motion.span>
+                ))}
+              </div>
+            </motion.div>
+
+            {/* Paragraph 2 — travel/hobbies */}
+            <motion.p
+              initial={{ opacity: 0, y: 18 }}
+              animate={isInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.55, delay: 0.62, ease: "easeOut" }}
+              className="text-xl leading-relaxed"
+              style={{ color: "var(--fg-2)" }}
+            >
+              {paragraphs[2]}
+            </motion.p>
           </div>
 
           <BigPolaroid />
         </div>
-
-        {/* Skills */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.55, delay: 0.5 }}
-          className="mt-20"
-        >
-          <div className="flex items-center gap-3 mb-10">
-            <span className="font-mono text-sm tracking-widest uppercase" style={{ color: "var(--fg-muted)" }}>
-              skills &amp; proficiency
-            </span>
-            <div className="flex-1 h-px" style={{ background: "var(--border)" }} />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-            {skills.map((group, gi) => (
-              <div key={group.category} className="space-y-5">
-                <p
-                  className="font-mono text-xs tracking-widest uppercase mb-5"
-                  style={{ color: "var(--fg-muted)" }}
-                >
-                  {group.category}
-                </p>
-                {group.items.map((skill, si) => (
-                  <SkillBar
-                    key={skill.name}
-                    name={skill.name}
-                    level={skill.level}
-                    delay={0.1 + gi * 0.08 + si * 0.06}
-                  />
-                ))}
-              </div>
-            ))}
-          </div>
-        </motion.div>
       </div>
     </section>
   );
