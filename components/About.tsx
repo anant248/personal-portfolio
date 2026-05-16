@@ -129,7 +129,7 @@ export default function About() {
                     initial={{ opacity: 0, y: 6 }}
                     animate={isInView ? { opacity: 1, y: 0 } : {}}
                     transition={{ duration: 0.3, delay: 0.4 + i * 0.05, ease: "easeOut" }}
-                    className="text-xl rounded-full px-3 py-1 border cursor-default leading-relaxed"
+                    className="text-base rounded-full px-3 py-1 border cursor-default leading-relaxed"
                     style={{ borderColor: "var(--border)", color: "var(--fg-2)", background: "transparent" }}
                     onMouseEnter={e => {
                       (e.currentTarget as HTMLElement).style.color = "#FB923C";
