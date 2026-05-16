@@ -76,7 +76,7 @@ PROJECTS
 
 SKILLS
 ======
-Languages: Java (expert), Python (expert), TypeScript/JavaScript (proficient), C/C++ (proficient), SQL (proficient)
+Languages: Java (proficient), Python (proficient), TypeScript/JavaScript (proficient), C/C++ (proficient), SQL (proficient)
 Frameworks: React, Next.js, Spring Boot, Node.js, Angular
 Tools & Platforms: Git, Jira, Jenkins, Hadoop, Apache Spark, Selenium, OpenCV, Google MediaPipe, Snyk
 

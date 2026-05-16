@@ -135,22 +135,7 @@ export default function Hero() {
         </div>
       </motion.div>
 
-      {/* Scroll indicator */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.4, duration: 0.6 }}
-        className="absolute bottom-10 left-1/2 -translate-x-1/2"
-      >
-        <a href="#about" aria-label="Scroll to about"
-          className="flex flex-col items-center gap-2 transition-colors"
-          style={{ color: "var(--fg-muted)" }}
-          onMouseEnter={e => (e.currentTarget.style.color = "var(--fg-2)")}
-          onMouseLeave={e => (e.currentTarget.style.color = "var(--fg-muted)")}
-        >
-          <ArrowDown size={18} strokeWidth={1.5} className="animate-bounce" />
-        </a>
-      </motion.div>
+      {/* Scroll indicator removed */}
     </section>
   );
 }

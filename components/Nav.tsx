@@ -13,7 +13,7 @@ const navLinks = [
   { label: "Projects",   href: "#projects",   comingSoon: false },
   { label: "Chat",       href: "#ask",        comingSoon: false },
   { label: "Contact",    href: "#contact",    comingSoon: false },
-  { label: "Writing",    href: null,          comingSoon: true  },
+  // { label: "Writing",    href: null,          comingSoon: true  },
 ];
 
 function GithubIcon({ size = 20 }: { size?: number }) {
