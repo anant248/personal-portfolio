@@ -9,8 +9,8 @@ const skills = [
     category: "Languages",
     items: [
       { name: "Java",           level: 92 },
-      { name: "Python",         level: 90 },
-      { name: "TypeScript / JS",level: 78 },
+      { name: "Python",         level: 92 },
+      { name: "TypeScript / JS",level: 85 },
       { name: "C / C++",        level: 74 },
       { name: "SQL",            level: 70 },
     ],
@@ -28,11 +28,11 @@ const skills = [
   {
     category: "Tools",
     items: [
-      { name: "Git",            level: 90 },
-      { name: "Jenkins",        level: 68 },
+      { name: "Git",            level: 95 },
+      { name: "Jira",           level: 92 },
+      { name: "Jenkins",        level: 75 },
+      { name: "Snyk",           level: 74 },
       { name: "Hadoop / Spark", level: 62 },
-      { name: "Jira",           level: 78 },
-      { name: "Snyk",           level: 60 },
     ],
   },
 ];
