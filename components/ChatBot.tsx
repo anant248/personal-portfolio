@@ -6,14 +6,13 @@ import { motion, useInView, AnimatePresence } from "framer-motion";
 import { Send } from "lucide-react";
 
 const MAX_QUESTIONS = 5;
-const SESSION_KEY = "chatbot_questions_used";
 
 const SUGGESTED = [
-  "What's your work experience?",
-  "Tell me about your projects",
-  "What technologies do you use?",
-  "What are you studying at UIUC?",
-  "How can I get in touch?",
+  "What's his work experience?",
+  "Tell me about his projects",
+  "What technologies does he use?",
+  "What is he studying at UIUC?",
+  "How can I get in touch with him?",
 ];
 
 function SectionTitle({ children }: { children: string }) {
@@ -46,57 +45,44 @@ function TypingIndicator() {
 
 export default function ChatBot() {
   const sectionRef = useRef<HTMLDivElement>(null);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  // Ref to the chat container div — scroll its own scrollTop, not the page
+  const chatContainerRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-80px" });
 
-  // Session-based rate limit via sessionStorage
+  // In-memory rate limit — resets on every page refresh
   const [questionsUsed, setQuestionsUsed] = useState(0);
-  useEffect(() => {
-    const stored = sessionStorage.getItem(SESSION_KEY);
-    setQuestionsUsed(stored ? parseInt(stored, 10) : 0);
-  }, []);
 
   const exhausted = questionsUsed >= MAX_QUESTIONS;
   const remaining = MAX_QUESTIONS - questionsUsed;
 
-  const { messages, input, setInput, handleInputChange, handleSubmit, isLoading } = useChat({
-    api: "/api/chat",
-    onFinish: () => {
-      const next = questionsUsed + 1;
-      setQuestionsUsed(next);
-      sessionStorage.setItem(SESSION_KEY, String(next));
-    },
-  });
-
-  // Auto-scroll to latest message
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, isLoading]);
-
-  const submitQuestion = (question: string) => {
-    if (exhausted || isLoading) return;
-    setInput(question);
-    // Let state settle then submit
-    setTimeout(() => {
-      const form = document.getElementById("chat-form") as HTMLFormElement | null;
-      form?.requestSubmit();
-    }, 0);
+  // Increment count on send (not on receive) so it decrements immediately
+  const incrementCount = () => {
+    setQuestionsUsed((prev) => prev + 1);
   };
 
+  const { messages, input, setInput, handleInputChange, handleSubmit, append, isLoading } = useChat({
+    api: "/api/chat",
+  });
+
+  // Scroll only the chat box, never the page
+  useEffect(() => {
+    const el = chatContainerRef.current;
+    if (el) el.scrollTop = el.scrollHeight;
+  }, [messages, isLoading]);
+
+  // Submit via the form (Enter key or send button)
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (exhausted || !input.trim() || isLoading) return;
+    incrementCount();
     handleSubmit(e);
   };
 
-  // Keep input in sync when submitQuestion sets it before form submit
+  // Suggested question — use append() directly to avoid form/state race conditions
   const handleSuggestedClick = (q: string) => {
     if (exhausted || isLoading) return;
-    setInput(q);
-    requestAnimationFrame(() => {
-      const form = document.getElementById("chat-form") as HTMLFormElement | null;
-      form?.requestSubmit();
-    });
+    incrementCount();
+    append({ role: "user", content: q });
   };
 
   return (
@@ -109,11 +95,11 @@ export default function ChatBot() {
         >
           <SectionTitle>ask me</SectionTitle>
 
-          <p className="mb-6 text-base leading-relaxed" style={{ color: "var(--fg-2)" }}>
-            Chat with an AI trained on my resume, experience, and projects.{" "}
-            <span className="font-mono text-sm" style={{ color: "var(--fg-dim)" }}>
-              {remaining} / {MAX_QUESTIONS} questions remaining this session.
-            </span>
+          <p className="text-base leading-relaxed" style={{ color: "var(--fg-2)" }}>
+            Chat with an AI trained on my resume, experience, and projects.
+          </p>
+          <p className="mb-6 mt-1 font-mono text-sm" style={{ color: "var(--fg-dim)" }}>
+            {remaining} / {MAX_QUESTIONS} questions remaining this session.
           </p>
 
           {/* Suggested question pills */}
@@ -143,8 +129,9 @@ export default function ChatBot() {
             ))}
           </div>
 
-          {/* Chat window */}
+          {/* Chat window — overflow-y scroll on the container itself */}
           <div
+            ref={chatContainerRef}
             className="rounded-2xl border mb-3 overflow-y-auto p-4 flex flex-col gap-3"
             style={{
               background: "var(--pill-bg)",
@@ -153,9 +140,8 @@ export default function ChatBot() {
               maxHeight: "360px",
             }}
           >
-            {/* Welcome message */}
-            {messages.length === 0 && (
-              <motion.div
+            {/* Welcome message — always visible */}
+            <motion.div
                 initial={{ opacity: 0, y: 6 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4 }}
@@ -166,10 +152,9 @@ export default function ChatBot() {
                   className="rounded-xl rounded-tl-none px-3 py-2 text-sm leading-relaxed max-w-[85%]"
                   style={{ background: "var(--bg)", border: "1px solid var(--border)", color: "var(--fg)" }}
                 >
-                  Hi! I'm trained on Anant's resume and portfolio. Ask me anything about his experience, projects, or skills.
+                  Hi! I'm trained on Anant's resume and portfolio. Ask me anything about his experience, projects, or skills!
                 </div>
-              </motion.div>
-            )}
+            </motion.div>
 
             {/* Messages */}
             <AnimatePresence initial={false}>
@@ -179,11 +164,11 @@ export default function ChatBot() {
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.25 }}
-                  className={`flex items-start gap-2 ${m.role === "user" ? "flex-row-reverse" : ""}`}
+                  className={`flex items-start gap-2 ${m.role === "user" ? "justify-end" : ""}`}
                 >
-                  <span className="text-lg leading-none mt-0.5 shrink-0">
-                    {m.role === "user" ? "🧑" : "🤖"}
-                  </span>
+                  {m.role === "assistant" && (
+                    <span className="text-lg leading-none mt-0.5 shrink-0">🤖</span>
+                  )}
                   <div
                     className="rounded-xl px-3 py-2 text-sm leading-relaxed max-w-[85%]"
                     style={
@@ -230,12 +215,10 @@ export default function ChatBot() {
                 You've used all {MAX_QUESTIONS} questions this session — refresh to start over.
               </motion.p>
             )}
-
-            <div ref={messagesEndRef} />
           </div>
 
           {/* Input row */}
-          <form id="chat-form" onSubmit={onSubmit} className="flex gap-2">
+          <form onSubmit={onSubmit} className="flex gap-2">
             <input
               value={input}
               onChange={handleInputChange}

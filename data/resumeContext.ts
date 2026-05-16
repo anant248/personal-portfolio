@@ -7,13 +7,13 @@ ABOUT ANANT GOYAL
 =================
 Name: Anant Goyal
 Current role: Masters student in Computer Engineering at the University of Illinois Urbana-Champaign (UIUC), started 2025.
-Background: Born and raised in Vadodara, India. Moved to Canada in 2010. Completed a BASc in Computer Engineering at the University of British Columbia (UBC), Vancouver, graduating in 2023.
-Interests: Distributed systems, backend engineering, networking, reliability, computer vision. Outside work: traveling, scuba diving, sports.
+Background: Grew up in Vadodara, India. Moved to Canada in 2010. Completed a BASc in Computer Engineering at the University of British Columbia (UBC), Vancouver, graduating in 2023.
+Interests: Distributed systems, backend engineering, networking, reliabile infrastructure, AI-powered systems. Outside work: traveling, scuba diving, sports.
 Contact: anantgoyal2000@gmail.com | github.com/anant248 | linkedin.com/in/anant-goyal1
 
 EDUCATION
 =========
-- M.S. Computer Engineering — University of Illinois Urbana-Champaign (UIUC), 2025–present
+- M.Eng Computer Engineering — University of Illinois Urbana-Champaign (UIUC), 2025–present
 - B.A.Sc. Computer Engineering — University of British Columbia (UBC), Vancouver, 2018–2023
 
 WORK EXPERIENCE
