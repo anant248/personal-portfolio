@@ -42,7 +42,11 @@ export const travelLocations: TravelLocation[] = [
     lng: 90.4125,
     years: "2007-2009",
     caption: "A short but memorable stay in Bangladesh. Piano lessons, skating classes and Sylhet sunsets.",
-    photos: [],
+    photos: [
+      { src: "/photos/travel/dhaka/dhaka1.jpg", caption: "skating 🛼",  rotate: -4 },
+      { src: "/photos/travel/dhaka/dhaka2.jpg", caption: "piano performances", rotate:  5 },
+      { src: "/photos/travel/dhaka/dhaka3.jpg", caption: "Dhaka days",   rotate: -2 },
+    ],
   },
   {
     id: "calgary",
