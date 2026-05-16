@@ -3,6 +3,7 @@ import Hero from "@/components/Hero";
 import About from "@/components/About";
 import Experience from "@/components/Experience";
 import Projects from "@/components/Projects";
+import ChatBot from "@/components/ChatBot";
 import Contact from "@/components/Contact";
 import RecordPlayer from "@/components/RecordPlayer";
 import BackToTop from "@/components/BackToTop";
@@ -16,6 +17,7 @@ export default function Home() {
         <About />
         <Experience />
         <Projects />
+        <ChatBot />
         <Contact />
       </main>
       <RecordPlayer />

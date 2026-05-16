@@ -68,6 +68,6 @@ export const projects: Project[] = [
     stack: ["Next.js", "TypeScript", "Tailwind CSS", "Framer Motion"],
     color: "linear-gradient(135deg, #07121f 0%, #10243d 60%, #183b63 100%)",
     github: "https://github.com/anant248",
-    live: "https://anantgoyal.dev",
+    live: "https://anantgoyal.com",
   },
 ];
