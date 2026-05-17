@@ -8,6 +8,18 @@ export default function RecordPlayer() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showInfo, setShowInfo] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const cancelHide = () => {
+    if (hideTimerRef.current) {
+      clearTimeout(hideTimerRef.current);
+      hideTimerRef.current = null;
+    }
+  };
+  const scheduleHide = () => {
+    cancelHide();
+    hideTimerRef.current = setTimeout(() => setShowInfo(false), 120);
+  };
 
   // Create audio element once on mount
   useEffect(() => {
@@ -67,6 +79,8 @@ export default function RecordPlayer() {
         className={`transition-all duration-300 ${
           showInfo ? "opacity-100 translate-x-0" : "opacity-0 translate-x-2 pointer-events-none"
         }`}
+        onMouseEnter={cancelHide}
+        onMouseLeave={scheduleHide}
       >
         <div
           className="rounded-xl px-4 py-2.5 text-right shadow-xl border"
@@ -89,8 +103,8 @@ export default function RecordPlayer() {
       {/* Vinyl record */}
       <button
         onClick={togglePlay}
-        onMouseEnter={() => setShowInfo(true)}
-        onMouseLeave={() => setShowInfo(false)}
+        onMouseEnter={() => { cancelHide(); setShowInfo(true); }}
+        onMouseLeave={scheduleHide}
         aria-label={isPlaying ? "Pause music" : "Play music"}
         className="relative w-16 h-16 rounded-full focus:outline-none group"
       >
