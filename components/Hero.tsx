@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { ArrowDown } from "lucide-react";
 import Image from "next/image";
@@ -12,16 +13,18 @@ const polaroids = [
 ];
 
 function Polaroid({
-  src, caption, rotate, top, left, index,
+  src, caption, rotate, top, left, index, onFirstDrag,
 }: {
   src: string; caption: string; rotate: number;
   top: string; left: string; index: number;
+  onFirstDrag?: () => void;
 }) {
   return (
     <motion.div
       drag
       dragMomentum={false}
       dragElastic={0}
+      onDragStart={onFirstDrag}
       initial={{ opacity: 0, y: 40, rotate: rotate - 10, scale: 0.85 }}
       animate={{ opacity: 1, y: 0, rotate, scale: 1 }}
       transition={{ delay: 0.6 + index * 0.15, duration: 0.7, type: "spring", damping: 14, stiffness: 110 }}
@@ -63,6 +66,7 @@ export default function Hero() {
   const scale = useTransform(scrollY, [0, 600], [1, 0.84]);
   const opacity = useTransform(scrollY, [0, 480], [1, 0]);
   const y = useTransform(scrollY, [0, 600], [0, -70]);
+  const [polaroidDragged, setPolaroidDragged] = React.useState(false);
 
   return (
     <section id="hero" className="relative min-h-screen flex items-center px-6 pt-20 pb-10">
@@ -130,8 +134,50 @@ export default function Hero() {
           style={{ width: "470px", height: "590px" }}
         >
           {polaroids.map((p, i) => (
-            <Polaroid key={i} index={i} {...p} />
+            <Polaroid
+              key={i}
+              index={i}
+              {...p}
+              onFirstDrag={() => setPolaroidDragged(true)}
+            />
           ))}
+
+          {/* "drag me around" annotation — top-right, above polaroids, fades after first drag */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: polaroidDragged ? 0 : 1 }}
+            transition={{ delay: polaroidDragged ? 0 : 1.8, duration: 0.6 }}
+            className="absolute pointer-events-none select-none"
+            style={{ top: "-64px", right: "0px", zIndex: 20, textAlign: "right" }}
+          >
+            <span
+              style={{
+                fontFamily: "var(--font-caveat)",
+                fontSize: "1.4rem",
+                color: "var(--fg-dim)",
+                display: "block",
+                marginBottom: "4px",
+              }}
+            >
+              drag me around
+            </span>
+            {/* Arrow curving down-left toward the top-right polaroid corner */}
+            <svg width="64" height="52" viewBox="0 0 64 52" fill="none" style={{ marginLeft: "auto" }}>
+              <path
+                d="M 58 5 C 48 14, 28 30, 8 46"
+                stroke="var(--fg-dim)"
+                strokeWidth="1.9"
+                strokeLinecap="round"
+                fill="none"
+              />
+              <path
+                d="M 8 46 L 18 43 M 8 46 L 13 36"
+                stroke="var(--fg-dim)"
+                strokeWidth="1.9"
+                strokeLinecap="round"
+              />
+            </svg>
+          </motion.div>
         </div>
       </motion.div>
 

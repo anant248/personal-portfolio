@@ -1,12 +1,17 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { motion } from "framer-motion";
 import { tracks } from "@/data/music";
+
+// Module-level: survives client-side navigation (/ → /travel) but resets on full page refresh
+let sessionHasPlayed = false;
 
 export default function RecordPlayer() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showInfo, setShowInfo] = useState(false);
+  const [hasPlayed, setHasPlayed] = useState(sessionHasPlayed);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -55,6 +60,11 @@ export default function RecordPlayer() {
       if (!audio.src) audio.src = tracks[currentIndex].src;
       audio.play().catch(() => {});
       setIsPlaying(true);
+      // Dismiss annotation on first play — resets on full page refresh
+      if (!hasPlayed) {
+        sessionHasPlayed = true;
+        setHasPlayed(true);
+      }
     }
   };
 
@@ -73,7 +83,48 @@ export default function RecordPlayer() {
   const track = tracks[currentIndex];
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 flex items-end gap-3">
+    <>
+      {/* "some tunes while you scroll" — above-left of record, arrow sweeps down-right toward it */}
+      <motion.div
+        className="fixed pointer-events-none select-none"
+        style={{ bottom: "70px", right: "10px", zIndex: 49, width: "max-content" }}
+        animate={{ opacity: hasPlayed ? 0 : 1 }}
+        transition={{ duration: 0.6 }}
+      >
+        <span
+          style={{
+            fontFamily: "var(--font-caveat)",
+            fontSize: "1.35rem",
+            color: "var(--fg-dim)",
+            display: "block",
+            whiteSpace: "nowrap",
+            marginBottom: "4px",
+          }}
+        >
+          some tunes while you scroll
+        </span>
+        {/* Arrow sweeping down and right toward the record */}
+        <svg width="210" height="60" viewBox="0 0 70 60" fill="none">
+          <path
+            d="M 8 8 C 12 25, 35 45, 62 54"
+            stroke="var(--fg-dim)"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            fill="none"
+          />
+          {/* Proper arrowhead V-shape */}
+          <path
+            d="M 45 55 L 62 54 L 50 40"
+            stroke="var(--fg-dim)"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            fill="none"
+          />
+        </svg>
+      </motion.div>
+
+      <div className="fixed bottom-6 right-6 z-50 flex items-end gap-3">
       {/* Track info pill */}
       <div
         className={`transition-all duration-300 ${
@@ -147,5 +198,6 @@ export default function RecordPlayer() {
         </div>
       </button>
     </div>
+    </>
   );
 }

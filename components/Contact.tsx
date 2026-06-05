@@ -2,7 +2,7 @@
 
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
-import { Mail, FileText } from "lucide-react";
+import { Mail, FileText, Calendar } from "lucide-react";
 
 function GithubIcon({ size = 18 }: { size?: number }) {
   return (
@@ -21,10 +21,11 @@ function LinkedinIcon({ size = 18 }: { size?: number }) {
 }
 
 const socialLinks = [
-  { label: "GitHub",   href: "https://github.com/anant248",                  Icon: GithubIcon },
-  { label: "LinkedIn", href: "https://www.linkedin.com/in/anant-goyal1/",    Icon: LinkedinIcon },
-  { label: "Email",    href: "mailto:anantgoyal2000@gmail.com",              Icon: Mail },
-  { label: "Resume",   href: "/resume/Anant Goyal Resume Masters.pdf",       Icon: FileText, external: true },
+  { label: "GitHub",        href: "https://github.com/anant248",               Icon: GithubIcon },
+  { label: "LinkedIn",      href: "https://www.linkedin.com/in/anant-goyal1/", Icon: LinkedinIcon },
+  { label: "Email",         href: "mailto:anantgoyal2000@gmail.com",           Icon: Mail },
+  { label: "Resume",        href: "/resume/Anant Goyal Resume Masters.pdf",    Icon: FileText,  external: true },
+  { label: "Book a call",   href: "https://cal.com/meet-anant",                Icon: Calendar,  external: true },
 ];
 
 export default function Contact() {
@@ -101,6 +102,7 @@ export default function Contact() {
           <p className="text-xs font-mono" style={{ color: "var(--fg-dim)" }}>
             designed &amp; built by{" "}
             <span style={{ color: "var(--fg-muted)" }}>Anant Goyal</span>
+            {" "}| All rights reserved &copy;
           </p>
         </motion.div>
       </div>

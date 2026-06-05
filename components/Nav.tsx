@@ -4,7 +4,7 @@ import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { Sun, Moon, Mail, FileText, Globe } from "lucide-react";
+import { Sun, Moon, Mail, FileText, Globe, Calendar } from "lucide-react";
 import Image from "next/image";
 
 const navLinks = [
@@ -13,6 +13,7 @@ const navLinks = [
   { label: "Projects",   href: "#projects",   comingSoon: false },
   { label: "Chat",       href: "#ask",        comingSoon: false },
   { label: "Contact",    href: "#contact",    comingSoon: false },
+  { label: "Blog",       href: "https://medium.com/@anantgoyal2000", comingSoon: false, external: true },
   // { label: "Writing",    href: null,          comingSoon: true  },
 ];
 
@@ -37,6 +38,7 @@ const socialLinks = [
   { href: "https://www.linkedin.com/in/anant-goyal1/", Icon: LinkedinIcon, label: "LinkedIn" },
   { href: "mailto:anantgoyal2000@gmail.com",           Icon: Mail,        label: "Email",   isLucide: true },
   { href: "/resume/Anant Goyal Resume Masters.pdf",    Icon: FileText,    label: "Resume",  isLucide: true, external: true },
+  { href: "https://cal.com/meet-anant",                Icon: Calendar,    label: "Book a call", isLucide: true, external: true },
 ];
 
 export default function Nav() {
@@ -111,7 +113,8 @@ export default function Nav() {
 
       {/* Right: nav links + globe icon + theme toggle */}
       <nav className="flex items-center gap-5 md:gap-7">
-        {navLinks.map(({ label, href, comingSoon }) => {
+        {navLinks.map(({ label, href, comingSoon, ...rest }) => {
+          const external = (rest as { external?: boolean }).external;
           if (comingSoon) {
             return (
               <span
@@ -131,6 +134,8 @@ export default function Nav() {
             <a
               key={label}
               href={href ?? undefined}
+              target={external ? "_blank" : undefined}
+              rel={external ? "noopener noreferrer" : undefined}
               className="font-mono text-base tracking-wide transition-colors hidden md:block"
               style={{ color: "var(--fg-muted)" }}
               onMouseEnter={e => (e.currentTarget.style.color = "var(--fg)")}
