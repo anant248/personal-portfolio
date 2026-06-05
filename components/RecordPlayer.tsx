@@ -86,7 +86,7 @@ export default function RecordPlayer() {
     <>
       {/* "some tunes while you scroll" — above-left of record, arrow sweeps down-right toward it */}
       <motion.div
-        className="fixed pointer-events-none select-none"
+        className="fixed pointer-events-none select-none hidden md:block"
         style={{ bottom: "70px", right: "10px", zIndex: 49, width: "max-content" }}
         animate={{ opacity: hasPlayed ? 0 : 1 }}
         transition={{ duration: 0.6 }}
