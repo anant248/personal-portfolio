@@ -1,13 +1,13 @@
 "use client";
 
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { motion, useInView } from "framer-motion";
-import { ExternalLink, ChevronLeft, ChevronRight } from "lucide-react";
+import { ExternalLink } from "lucide-react";
 import { projects } from "@/data/projects";
 
-const CARD_W = 480;
-const GAP = 20;
-const STEP = CARD_W + GAP;
+const BASE_SPEED = 42;   // px/s — idle auto-scroll
+const HOVER_SPEED = 11;  // px/s — when a card is hovered
+const COPIES = 3;        // duplicated sets for seamless wrap
 
 function GithubIcon({ size = 16 }: { size?: number }) {
   return (
@@ -30,21 +30,43 @@ function SectionTitle({ children }: { children: string }) {
 function ProjectCard({ project, index }: { project: typeof projects[0]; index: number }) {
   return (
     <motion.div
-      whileHover={{ y: -4, transition: { duration: 0.2 } }}
-      className="relative shrink-0 rounded-2xl overflow-hidden flex flex-col"
+      whileHover={{ y: -6, transition: { duration: 0.25 } }}
+      className="relative shrink-0 rounded-3xl overflow-hidden flex flex-col"
       style={{
-        width: `min(${CARD_W}px, 88vw)`,
-        height: "300px",
-        scrollSnapAlign: "start",
-        background: project.color,
+        width: "min(480px, 86vw)",
+        minHeight: "380px",
+        boxShadow: "0 18px 44px rgba(0,0,0,0.32)",
       }}
     >
+      {/* Project color base */}
+      <div className="absolute inset-0" style={{ background: project.color }} />
+
+      {/* Liquid glass: frosted sheen sweeping from the top-left */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background:
+            "linear-gradient(155deg, rgba(255,255,255,0.16) 0%, rgba(255,255,255,0.05) 30%, rgba(255,255,255,0) 55%, rgba(255,255,255,0.03) 100%)",
+          backdropFilter: "blur(18px)",
+          WebkitBackdropFilter: "blur(18px)",
+        }}
+      />
+
+      {/* Glass rim highlight */}
+      <div
+        className="absolute inset-0 rounded-3xl pointer-events-none"
+        style={{
+          boxShadow:
+            "inset 0 1px 0 rgba(255,255,255,0.22), inset 0 0 0 1px rgba(255,255,255,0.09)",
+        }}
+      />
+
       {/* Content */}
-      <div className="relative flex flex-col h-full p-6">
+      <div className="relative flex flex-col grow p-7">
 
         {/* Top row: index label + links */}
         <div className="flex items-center justify-between mb-6">
-          <span className="font-mono text-[11px] tracking-widest uppercase" style={{ color: "rgba(255,255,255,0.3)" }}>
+          <span className="font-mono text-[11px] tracking-widest uppercase" style={{ color: "rgba(255,255,255,0.35)" }}>
             project {String(index + 1).padStart(2, "0")}
           </span>
           <div className="flex items-center gap-3" style={{ color: "white" }}>
@@ -82,17 +104,8 @@ function ProjectCard({ project, index }: { project: typeof projects[0]; index: n
           {project.title}
         </h3>
 
-        {/* Description */}
-        <p
-          className="text-sm leading-relaxed mb-auto"
-          style={{
-            color: "rgba(255,255,255,0.55)",
-            display: "-webkit-box",
-            WebkitLineClamp: 4,
-            WebkitBoxOrient: "vertical",
-            overflow: "hidden",
-          }}
-        >
+        {/* Description — no clamp, cards are tall enough to fit full text */}
+        <p className="text-sm leading-relaxed mb-auto" style={{ color: "rgba(255,255,255,0.6)" }}>
           {project.description}
         </p>
 
@@ -101,10 +114,11 @@ function ProjectCard({ project, index }: { project: typeof projects[0]; index: n
           {project.stack.map((tech) => (
             <span
               key={tech}
-              className="font-mono text-[11px] rounded px-2 py-0.5"
+              className="font-mono text-[11px] rounded-full px-2.5 py-0.5"
               style={{
-                color: "rgba(255,255,255,0.5)",
-                border: "1px solid rgba(255,255,255,0.12)",
+                color: "rgba(255,255,255,0.55)",
+                border: "1px solid rgba(255,255,255,0.14)",
+                background: "rgba(255,255,255,0.05)",
               }}
             >
               {tech}
@@ -118,11 +132,108 @@ function ProjectCard({ project, index }: { project: typeof projects[0]; index: n
 
 export default function Projects() {
   const ref = useRef(null);
-  const sliderRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
 
-  const scroll = (dir: 1 | -1) => {
-    sliderRef.current?.scrollBy({ left: dir * STEP, behavior: "smooth" });
+  const trackRef = useRef<HTMLDivElement>(null);
+  const setRef = useRef<HTMLDivElement>(null);
+  const wrapRef = useRef<HTMLDivElement>(null);
+
+  // Animation state lives in refs — the rAF loop mutates the transform directly,
+  // no React re-renders per frame.
+  const offset = useRef(0);
+  const speed = useRef(BASE_SPEED);
+  const setWidth = useRef(0);
+  const hovered = useRef(false);
+  const dragging = useRef(false);
+  const lastX = useRef(0);
+  const lastMoveT = useRef(0);
+  const dragVel = useRef(0);
+  const moved = useRef(0);
+
+  useEffect(() => {
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    const measure = () => {
+      if (setRef.current) setWidth.current = setRef.current.offsetWidth;
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    if (setRef.current) ro.observe(setRef.current);
+
+    let raf: number;
+    let last = performance.now();
+    const tick = (now: number) => {
+      const dt = Math.min((now - last) / 1000, 0.05);
+      last = now;
+
+      if (!dragging.current) {
+        const base = reduceMotion ? 0 : BASE_SPEED;
+        const target = hovered.current ? Math.min(HOVER_SPEED, base) : base;
+        // Ease current speed toward target — this is also what makes a
+        // drag-fling decay smoothly back to the idle pace.
+        speed.current += (target - speed.current) * Math.min(1, dt * 2.4);
+        offset.current += speed.current * dt;
+      }
+
+      const w = setWidth.current;
+      if (w > 0) {
+        offset.current = ((offset.current % w) + w) % w;
+        if (trackRef.current) {
+          trackRef.current.style.transform = `translate3d(${-offset.current}px,0,0)`;
+        }
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+
+    const wrap = wrapRef.current;
+    const onEnter = () => (hovered.current = true);
+    const onLeave = () => (hovered.current = false);
+    wrap?.addEventListener("mouseenter", onEnter);
+    wrap?.addEventListener("mouseleave", onLeave);
+
+    return () => {
+      cancelAnimationFrame(raf);
+      ro.disconnect();
+      wrap?.removeEventListener("mouseenter", onEnter);
+      wrap?.removeEventListener("mouseleave", onLeave);
+    };
+  }, []);
+
+  const onPointerDown = (e: React.PointerEvent) => {
+    dragging.current = true;
+    moved.current = 0;
+    lastX.current = e.clientX;
+    lastMoveT.current = performance.now();
+    dragVel.current = 0;
+    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+  };
+
+  const onPointerMove = (e: React.PointerEvent) => {
+    if (!dragging.current) return;
+    const now = performance.now();
+    const dx = e.clientX - lastX.current;
+    const dt = (now - lastMoveT.current) / 1000;
+    lastX.current = e.clientX;
+    lastMoveT.current = now;
+    moved.current += Math.abs(dx);
+    offset.current -= dx; // drag left → marquee advances
+    if (dt > 0) dragVel.current = -dx / dt;
+  };
+
+  const endDrag = () => {
+    if (!dragging.current) return;
+    dragging.current = false;
+    // Release with fling momentum — tick() eases it back to BASE_SPEED
+    speed.current = Math.max(-2600, Math.min(2600, dragVel.current));
+  };
+
+  // After a real drag, swallow the click so card links don't fire
+  const onClickCapture = (e: React.MouseEvent) => {
+    if (moved.current > 8) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
   };
 
   return (
@@ -132,63 +243,34 @@ export default function Projects() {
           initial={{ opacity: 0, y: 16 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.5 }}
-          className="flex items-center justify-between"
         >
           <SectionTitle>projects</SectionTitle>
-
-          {/* Arrow controls */}
-          <div className="flex items-center gap-2 mb-12 shrink-0">
-            <button
-              onClick={() => scroll(-1)}
-              aria-label="Previous project"
-              className="flex items-center justify-center w-8 h-8 rounded-full border transition-colors"
-              style={{ borderColor: "var(--border)", color: "var(--fg-muted)" }}
-              onMouseEnter={e => {
-                (e.currentTarget as HTMLElement).style.color = "var(--fg)";
-                (e.currentTarget as HTMLElement).style.borderColor = "var(--fg-dim)";
-              }}
-              onMouseLeave={e => {
-                (e.currentTarget as HTMLElement).style.color = "var(--fg-muted)";
-                (e.currentTarget as HTMLElement).style.borderColor = "var(--border)";
-              }}
-            >
-              <ChevronLeft size={16} strokeWidth={1.8} />
-            </button>
-            <button
-              onClick={() => scroll(1)}
-              aria-label="Next project"
-              className="flex items-center justify-center w-8 h-8 rounded-full border transition-colors"
-              style={{ borderColor: "var(--border)", color: "var(--fg-muted)" }}
-              onMouseEnter={e => {
-                (e.currentTarget as HTMLElement).style.color = "var(--fg)";
-                (e.currentTarget as HTMLElement).style.borderColor = "var(--fg-dim)";
-              }}
-              onMouseLeave={e => {
-                (e.currentTarget as HTMLElement).style.color = "var(--fg-muted)";
-                (e.currentTarget as HTMLElement).style.borderColor = "var(--border)";
-              }}
-            >
-              <ChevronRight size={16} strokeWidth={1.8} />
-            </button>
-          </div>
         </motion.div>
       </div>
 
+      {/* Infinite marquee — auto-scrolls, slows on hover, drag to fling */}
       <motion.div
-        ref={sliderRef}
+        ref={wrapRef}
         initial={{ opacity: 0, y: 20 }}
         animate={isInView ? { opacity: 1, y: 0 } : {}}
         transition={{ duration: 0.6, delay: 0.15 }}
-        className="flex gap-5 overflow-x-auto pl-6 pr-6"
-        style={{
-          scrollSnapType: "x mandatory",
-          scrollbarWidth: "none",
-          msOverflowStyle: "none",
-        }}
+        className="relative overflow-hidden cursor-grab active:cursor-grabbing select-none py-3"
+        style={{ touchAction: "pan-y" }}
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={endDrag}
+        onPointerCancel={endDrag}
+        onClickCapture={onClickCapture}
       >
-        {projects.map((project, i) => (
-          <ProjectCard key={i} project={project} index={i} />
-        ))}
+        <div ref={trackRef} className="flex w-max" style={{ willChange: "transform" }}>
+          {Array.from({ length: COPIES }).map((_, c) => (
+            <div key={c} ref={c === 0 ? setRef : undefined} className="flex gap-5 pr-5">
+              {projects.map((project, i) => (
+                <ProjectCard key={i} project={project} index={i} />
+              ))}
+            </div>
+          ))}
+        </div>
       </motion.div>
     </section>
   );
