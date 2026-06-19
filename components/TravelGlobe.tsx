@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState, useCallback } from "react";
 import { useTheme } from "next-themes";
 import dynamic from "next/dynamic";
 import { travelLocations, TravelLocation } from "@/data/travel";
+import GlobeLoader from "./GlobeLoader";
 
 // Dynamically import to avoid SSR — globe.gl calls window/WebGL at module eval time
 // Cast to ComponentType<any> because react-globe.gl's TypeScript types are incomplete
@@ -20,6 +21,15 @@ export default function TravelGlobe({ onLocationSelect, selectedLocation }: Trav
   const containerRef = useRef<HTMLDivElement>(null);
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
   const [mounted, setMounted] = useState(false);
+  const [globeReady, setGlobeReady] = useState(false);
+  // Keep the loader in the DOM through its fade-out, then unmount it.
+  const [showLoader, setShowLoader] = useState(true);
+
+  useEffect(() => {
+    if (!globeReady) return;
+    const t = setTimeout(() => setShowLoader(false), 600);
+    return () => clearTimeout(t);
+  }, [globeReady]);
 
   // Measure container and keep globe sized to it
   useEffect(() => {
@@ -91,49 +101,51 @@ export default function TravelGlobe({ onLocationSelect, selectedLocation }: Trav
     ? "//unpkg.com/three-globe/example/img/earth-night.jpg"
     : "//unpkg.com/three-globe/example/img/earth-blue-marble.jpg";
 
-  if (!mounted) {
-    return (
-      <div ref={containerRef} className="w-full h-full flex items-center justify-center">
-        <div
-          className="rounded-full animate-pulse"
-          style={{
-            width: "min(70vh, 70vw)",
-            height: "min(70vh, 70vw)",
-            background: isDark ? "#1a1a1a" : "#e4e4e7",
-          }}
-        />
-      </div>
-    );
-  }
-
   return (
-    <div ref={containerRef} className="w-full h-full">
-      <Globe
-        ref={globeRef}
-        width={dimensions.width}
-        height={dimensions.height}
-        globeImageUrl={globeTexture}
-        backgroundImageUrl=""
-        showAtmosphere
-        atmosphereColor="#FB923C"
-        atmosphereAltitude={0.12}
-        htmlElementsData={travelLocations}
-        htmlLat={(d: TravelLocation) => d.lat}
-        htmlLng={(d: TravelLocation) => d.lng}
-        htmlAltitude={0.02}
-        htmlElement={buildPin}
-        pointOfView={{ lat: 20, lng: 20, altitude: 2.2 }}
-        onGlobeReady={() => {
-          if (globeRef.current) {
-            const controls = globeRef.current.controls();
-            if (controls) {
-              controls.autoRotate = true;
-              controls.autoRotateSpeed = 0.4;
+    <div ref={containerRef} className="w-full h-full relative">
+      {mounted && (
+        <Globe
+          ref={globeRef}
+          width={dimensions.width}
+          height={dimensions.height}
+          globeImageUrl={globeTexture}
+          backgroundImageUrl=""
+          showAtmosphere
+          atmosphereColor="#FB923C"
+          atmosphereAltitude={0.12}
+          htmlElementsData={travelLocations}
+          htmlLat={(d: TravelLocation) => d.lat}
+          htmlLng={(d: TravelLocation) => d.lng}
+          htmlAltitude={0.02}
+          htmlElement={buildPin}
+          pointOfView={{ lat: 20, lng: 20, altitude: 2.2 }}
+          onGlobeReady={() => {
+            if (globeRef.current) {
+              const controls = globeRef.current.controls();
+              if (controls) {
+                controls.autoRotate = true;
+                controls.autoRotateSpeed = 0.4;
+              }
             }
-          }
-        }}
-        enablePointerInteraction
-      />
+            setGlobeReady(true);
+          }}
+          enablePointerInteraction
+        />
+      )}
+
+      {showLoader && (
+        <div
+          className="absolute inset-0 flex items-center justify-center"
+          style={{
+            background: "var(--bg)",
+            opacity: globeReady ? 0 : 1,
+            transition: "opacity 0.6s ease",
+            pointerEvents: globeReady ? "none" : "auto",
+          }}
+        >
+          <GlobeLoader />
+        </div>
+      )}
     </div>
   );
 }
