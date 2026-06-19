@@ -6,7 +6,7 @@ import { ExternalLink } from "lucide-react";
 import { projects } from "@/data/projects";
 
 const BASE_SPEED = 42;   // px/s — idle auto-scroll
-const HOVER_SPEED = 11;  // px/s — when a card is hovered
+const HOVER_SPEED = 11;  // px/s — card hovered (not over a link)
 const COPIES = 3;        // duplicated sets for seamless wrap
 
 function GithubIcon({ size = 16 }: { size?: number }) {
@@ -27,7 +27,17 @@ function SectionTitle({ children }: { children: string }) {
   );
 }
 
-function ProjectCard({ project, index }: { project: typeof projects[0]; index: number }) {
+function ProjectCard({
+  project,
+  index,
+  onLinkEnter,
+  onLinkLeave,
+}: {
+  project: typeof projects[0];
+  index: number;
+  onLinkEnter: () => void;
+  onLinkLeave: () => void;
+}) {
   return (
     <motion.div
       whileHover={{ y: -6, transition: { duration: 0.25 } }}
@@ -76,11 +86,12 @@ function ProjectCard({ project, index }: { project: typeof projects[0]; index: n
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="GitHub"
-                className="transition-opacity opacity-40 hover:opacity-100"
+                className="transition-opacity opacity-50 hover:opacity-100 p-1"
                 style={{ color: "white" }}
-                onClick={(e) => e.stopPropagation()}
+                onMouseEnter={onLinkEnter}
+                onMouseLeave={onLinkLeave}
               >
-                <GithubIcon size={17} />
+                <GithubIcon size={21} />
               </a>
             )}
             {project.live && (
@@ -89,11 +100,12 @@ function ProjectCard({ project, index }: { project: typeof projects[0]; index: n
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Live / Demo"
-                className="transition-opacity opacity-40 hover:opacity-100"
+                className="transition-opacity opacity-50 hover:opacity-100 p-1"
                 style={{ color: "white" }}
-                onClick={(e) => e.stopPropagation()}
+                onMouseEnter={onLinkEnter}
+                onMouseLeave={onLinkLeave}
               >
-                <ExternalLink size={16} strokeWidth={1.5} />
+                <ExternalLink size={20} strokeWidth={1.5} />
               </a>
             )}
           </div>
@@ -144,11 +156,16 @@ export default function Projects() {
   const speed = useRef(BASE_SPEED);
   const setWidth = useRef(0);
   const hovered = useRef(false);
+  const linkHovered = useRef(false); // completely stop when hovering link icons
   const dragging = useRef(false);
   const lastX = useRef(0);
   const lastMoveT = useRef(0);
   const dragVel = useRef(0);
   const moved = useRef(0);
+
+  // Stable callbacks passed to every card
+  const onLinkEnter = useRef(() => { linkHovered.current = true; });
+  const onLinkLeave = useRef(() => { linkHovered.current = false; });
 
   useEffect(() => {
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -168,9 +185,14 @@ export default function Projects() {
 
       if (!dragging.current) {
         const base = reduceMotion ? 0 : BASE_SPEED;
-        const target = hovered.current ? Math.min(HOVER_SPEED, base) : base;
-        // Ease current speed toward target — this is also what makes a
-        // drag-fling decay smoothly back to the idle pace.
+        let target: number;
+        if (linkHovered.current) {
+          target = 0; // full stop when over a link icon
+        } else if (hovered.current) {
+          target = Math.min(HOVER_SPEED, base);
+        } else {
+          target = base;
+        }
         speed.current += (target - speed.current) * Math.min(1, dt * 2.4);
         offset.current += speed.current * dt;
       }
@@ -188,7 +210,7 @@ export default function Projects() {
 
     const wrap = wrapRef.current;
     const onEnter = () => (hovered.current = true);
-    const onLeave = () => (hovered.current = false);
+    const onLeave = () => { hovered.current = false; linkHovered.current = false; };
     wrap?.addEventListener("mouseenter", onEnter);
     wrap?.addEventListener("mouseleave", onLeave);
 
@@ -201,6 +223,8 @@ export default function Projects() {
   }, []);
 
   const onPointerDown = (e: React.PointerEvent) => {
+    // Don't hijack clicks on links or buttons — let them navigate normally
+    if ((e.target as HTMLElement).closest("a, button")) return;
     dragging.current = true;
     moved.current = 0;
     lastX.current = e.clientX;
@@ -217,20 +241,22 @@ export default function Projects() {
     lastX.current = e.clientX;
     lastMoveT.current = now;
     moved.current += Math.abs(dx);
-    offset.current -= dx; // drag left → marquee advances
+    offset.current -= dx;
     if (dt > 0) dragVel.current = -dx / dt;
   };
 
   const endDrag = () => {
     if (!dragging.current) return;
     dragging.current = false;
-    // Release with fling momentum — tick() eases it back to BASE_SPEED
     speed.current = Math.max(-2600, Math.min(2600, dragVel.current));
+    // Reset so a subsequent link click isn't mistakenly swallowed
+    setTimeout(() => { moved.current = 0; }, 50);
   };
 
-  // After a real drag, swallow the click so card links don't fire
+  // After a real drag, swallow the click so card body doesn't trigger anything —
+  // but always let clicks on links/buttons through.
   const onClickCapture = (e: React.MouseEvent) => {
-    if (moved.current > 8) {
+    if (moved.current > 8 && !(e.target as HTMLElement).closest("a, button")) {
       e.preventDefault();
       e.stopPropagation();
     }
@@ -248,7 +274,7 @@ export default function Projects() {
         </motion.div>
       </div>
 
-      {/* Infinite marquee — auto-scrolls, slows on hover, drag to fling */}
+      {/* Infinite marquee — auto-scrolls, slows on hover, stops on link hover, drag to fling */}
       <motion.div
         ref={wrapRef}
         initial={{ opacity: 0, y: 20 }}
@@ -266,7 +292,13 @@ export default function Projects() {
           {Array.from({ length: COPIES }).map((_, c) => (
             <div key={c} ref={c === 0 ? setRef : undefined} className="flex gap-5 pr-5">
               {projects.map((project, i) => (
-                <ProjectCard key={i} project={project} index={i} />
+                <ProjectCard
+                  key={i}
+                  project={project}
+                  index={i}
+                  onLinkEnter={onLinkEnter.current}
+                  onLinkLeave={onLinkLeave.current}
+                />
               ))}
             </div>
           ))}
