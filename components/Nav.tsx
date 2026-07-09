@@ -4,7 +4,7 @@ import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { Sun, Moon, Mail, FileText, Globe, Calendar } from "lucide-react";
+import { Sun, Moon, Mail, FileText, Globe, Calendar, PenLine } from "lucide-react";
 import Image from "next/image";
 
 const navLinks = [
@@ -145,6 +145,32 @@ export default function Nav() {
             </a>
           );
         })}
+
+        {/* Blog / writing icon — mobile only (Blog link is in nav text on desktop) */}
+        <div className="relative group items-center flex md:hidden">
+          <a
+            href="https://medium.com/@anantgoyal2000"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Blog"
+            className="transition-colors p-1 rounded-md"
+            style={{ color: "var(--fg-muted)" }}
+            onMouseEnter={iconHover}
+            onMouseLeave={iconLeave}
+          >
+            <PenLine size={18} strokeWidth={1.7} />
+          </a>
+          <div
+            className="absolute top-full left-1/2 -translate-x-1/2 mt-2.5 px-2 py-1 rounded text-[11px] font-mono whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none"
+            style={{
+              background: "var(--pill-bg)",
+              color: "var(--fg-2)",
+              border: "1px solid var(--border)",
+            }}
+          >
+            blog
+          </div>
+        </div>
 
         {/* Globe icon — links to /travel, with tooltip. Visible on all screen sizes. */}
         <div className="relative group items-center flex">
