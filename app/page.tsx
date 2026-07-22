@@ -8,6 +8,7 @@ import ChatBot from "@/components/ChatBot";
 import Contact from "@/components/Contact";
 import RecordPlayer from "@/components/RecordPlayer";
 import BackToTop from "@/components/BackToTop";
+import OceanDepth from "@/components/OceanDepth";
 
 export default function Home() {
   return (
@@ -24,6 +25,7 @@ export default function Home() {
       </main>
       <RecordPlayer />
       <BackToTop />
+      <OceanDepth />
     </>
   );
 }

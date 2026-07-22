@@ -38,6 +38,6 @@ export const education: Education[] = [
     ],
     photo: "/photos/ubc.jpg",
     logo: "/photos/education/ubc-logo.png",
-    logoClass: "h-18",
+    logoClass: "h-16",
   },
 ];
