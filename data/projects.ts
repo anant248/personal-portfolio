@@ -9,6 +9,14 @@ export interface Project {
 
 export const projects: Project[] = [
   {
+    title: "Rex (iOS App)",
+    description:
+      "Built a social discovery app to share experience recommendations with your friends. Features include an activity feed of what friends are exploring, creating and sharing lists, and discovering popular places to explore. Inspired by popular consumer social apps: BeReal, Splitwise, Instagram, and Beli.",
+    stack: ["React Native", "TypeScript", "Expo", "Docker", "Postgres", "GCP", "PostHog", "Sentry"],
+    color: "linear-gradient(135deg, #0f1a12 0%, #16281c 60%, #1c3a26 100%)",
+    live: "https://rex-app.com",
+  },
+  {
     title: "Electric Rainbow",
     description:
       "An interactive music visualization system that transforms live guitar audio into synchronized abstract visual art in real time. Built as part of my engineering capstone at UBC.",
