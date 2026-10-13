@@ -45,11 +45,11 @@ export const projects: Project[] = [
   {
     title: "XLG Inspector",
     description:
-      "Built a large-scale load generation inspection and benchmarking system for analyzing coordinated omission and latency reporting behavior in modern load generators. This work received a top paper nomination.",
+      "Built a large-scale load generation inspection and benchmarking system for analyzing coordinated omission and latency reporting behavior in modern load generators. This work received a top paper nomination and was accepted to Symposium on Cloud Computing (SoCC) 2026.",
     stack: ["Go", "Distributed Systems", "Benchmarking", "Performance Engineering"],
     color: "linear-gradient(135deg, #0b1320 0%, #14213d 60%, #1f3a5f 100%)",
-    github: "https://github.com/adas2125/vegeta",
-    live: "https://drive.google.com/file/d/14DCZWsXL1KE_RpJ_sgwB8VqG2ktp30wZ/view?usp=sharing",
+    github: "https://github.com/adas2125/load-fiction-artifact",
+    live: "https://dprg.cs.uiuc.edu/data/files/2026/XLG-SoCC26.pdf",
   },
   {
     title: "PokerFace",
